@@ -1,7 +1,7 @@
 // Offline renderer: process a WAV file through the Rubber Bridge DSP.
 //
 //   rb_render in.wav out.wav [--mute 0.55] [--damping 0.5] [--attack 0.6]
-//             [--thump 0.3] [--mix 1] [--output 0] [--instrument electric|acoustic|baritone]
+//             [--thump 0.3] [--retrigger 0.8] [--sensitivity 0.5] [--mix 1] [--output 0] [--instrument electric|acoustic|baritone]
 //             [--block 64]
 //
 // Parameters are 0..1 (output in dB). Output is 32-bit float WAV.
@@ -26,7 +26,7 @@ int main (int argc, char** argv)
     if (argc < 3)
     {
         std::fprintf (stderr, "usage: %s in.wav out.wav [--mute x] [--damping x] [--attack x] [--thump x] "
-                              "[--mix x] [--output dB] [--instrument electric|acoustic|baritone] [--block n]\n",
+                              "[--retrigger x] [--sensitivity x] [--mix x] [--output dB] [--instrument electric|acoustic|baritone] [--block n]\n",
                       argv[0]);
         return 1;
     }
@@ -41,6 +41,8 @@ int main (int argc, char** argv)
         else if (k == "--damping") p.damping = std::strtof (v, nullptr);
         else if (k == "--attack") p.attack = std::strtof (v, nullptr);
         else if (k == "--thump") p.thump = std::strtof (v, nullptr);
+        else if (k == "--retrigger") p.retrigger = std::strtof (v, nullptr);
+        else if (k == "--sensitivity") p.sensitivity = std::strtof (v, nullptr);
         else if (k == "--mix") p.mix = std::strtof (v, nullptr);
         else if (k == "--output") p.outputDb = std::strtof (v, nullptr);
         else if (k == "--instrument") p.instrument = parseInstrument (v);

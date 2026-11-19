@@ -160,3 +160,54 @@ From (1), `rate_bridge(f)` can be measured per harmonic exactly as
 `testDecayMatchesPhysics` does, and R and α fitted. From (2)–(4) on the
 **unmuted** takes, the detector's flux distributions (onsets vs. sustain) give
 the real separating threshold.
+
+## Sources, and what is assumed
+
+**Taken from the literature:**
+
+- *Decay rates add; T60 = ln(1000) / rate.* Standard damped-oscillator
+  physics. Each loss mechanism (air, internal friction, energy leaving through
+  the bridge) contributes its own damping term, and they sum. See Fletcher &
+  Rossing, *The Physics of Musical Instruments* (2nd ed., Springer, 1998),
+  ch. 2 and 9, and J. O. Smith, *Physical Audio Signal Processing* (online
+  book, CCRMA), on string loss and T60.
+- *String losses grow with frequency, and the bridge/support is a major loss
+  path.* Valette & Cuesta, *Mécanique de la corde vibrante* (Hermès, 1993);
+  Gough, "The theory of string resonances on musical instruments", *Acustica*
+  48 (1981); Woodhouse, "On the synthesis of guitar plucks", *Acta Acustica
+  united with Acustica* 90 (2004).
+- *Frequency-dependent loss per round trip as the core of plucked-string
+  models.* Jaffe & Smith, "Extensions of the Karplus-Strong plucked-string
+  algorithm", *Computer Music Journal* 7(2) (1983); Karjalainen, Välimäki &
+  Tolonen, "Plucked-string models: from the Karplus-Strong algorithm to
+  digital waveguides and beyond", *Computer Music Journal* 22(3) (1998).
+- *Stiff-string inharmonicity* `f_n = n·f0·sqrt(1 + B·n²)` (used in the test
+  synth): Fletcher, "Normal vibration frequencies of a stiff piano string",
+  *JASA* 36 (1964).
+- *Plucked-string mode amplitudes* `∝ sin(nπ·p)/n^k` for pluck position `p`,
+  and pickup comb filtering `sin(nπ·q)`: Fletcher & Rossing, ch. 2.
+- *Linkwitz-Riley crossovers* (LR4 sums to an all-pass): Linkwitz, "Active
+  crossover networks for noncoincident drivers", *JAES* 24(1) (1976).
+- *TPT state-variable filter*: Zavalishin, *The Art of VA Filter Design*
+  (Native Instruments, 2012/2018); Simper, "Linear trapezoidal integrated SVF"
+  (Cytomic technical paper).
+- *Onset detection by summed positive band-energy rises ("spectral flux")*:
+  Bello et al., "A tutorial on onset detection in music signals", *IEEE Trans.
+  Speech and Audio Processing* 13(5) (2005). The peak-hold-over-a-period
+  variant here is my adaptation for zero latency.
+
+**My modelling choices (not from a paper, to be calibrated with recordings):**
+
+- The *form* of the bridge loss, `R·(f/1kHz)^α`. It is a simple power law
+  that captures "more loss at higher frequencies". I know of no published
+  measurement of rubber-bridge damping to fit.
+- The *numbers*: R up to 100 Np/s at 1 kHz and α from 0.2 to 1.2 were picked
+  so the extremes sound like "barely muted" and "heavily muted".
+- The synthetic guitar's natural decay, `T60(f) = 7 s / (1 + f/400)^0.8`, is
+  a plausible approximation of a steel string (several seconds at the low
+  end, under a second above 5 kHz). It is not fitted to measurements.
+- All detector constants (thresholds, windows, dead zones) were tuned on the
+  synthetic scenarios.
+
+Recordings with and without a real mute (see above) replace these
+assumptions with measurements.

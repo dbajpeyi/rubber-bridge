@@ -1,0 +1,50 @@
+name: build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  dsp-tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure (tools only)
+        run: cmake -S . -B build -DRB_BUILD_PLUGIN=OFF -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build --parallel
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+      - name: Synthetic evaluation
+        run: ./build/rb_eval
+
+  macos-plugin:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure (universal binary)
+        run: >
+          cmake -S . -B build -G Xcode
+          -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+          -DRB_BUILD_TOOLS=OFF
+      - name: Build AU + VST3 + Standalone
+        run: cmake --build build --config Release --parallel
+      - name: Validate the Audio Unit (auval)
+        run: |
+          mkdir -p ~/Library/Audio/Plug-Ins/Components
+          cp -R "build/RubberBridge_artefacts/Release/AU/Rubber Bridge.component" ~/Library/Audio/Plug-Ins/Components/
+          killall -9 AudioComponentRegistrar || true
+          auval -a | grep -i "Rbbr" || true
+          auval -strict -v aufx Rbg1 Rbbr
+      - name: Package
+        run: |
+          mkdir -p dist
+          cp -R "build/RubberBridge_artefacts/Release/AU/Rubber Bridge.component" dist/
+          cp -R "build/RubberBridge_artefacts/Release/VST3/Rubber Bridge.vst3" dist/
+          cp -R "build/RubberBridge_artefacts/Release/Standalone/Rubber Bridge.app" dist/
+          cd dist && zip -qry ../RubberBridge-macOS.zip .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RubberBridge-macOS
+          path: RubberBridge-macOS.zip
